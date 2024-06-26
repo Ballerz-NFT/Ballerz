@@ -1,30 +1,34 @@
 import "NonFungibleToken"
-import "FungibleToken"
+import "FungibleToken" 
 import "MetadataViews"
+import "ViewResolver"
 
 // Gaia
 // NFT an open NFT standard!
 //
-pub contract Gaia: NonFungibleToken {
+access(all) contract Gaia {
+
+    // TODO is this correct??
+    // entitlement for all previous Admin resources/functions
+    access(all) entitlement Owner
 
     // Events
     //
-    pub event ContractInitialized()
-    pub event Withdraw(id: UInt64, from: Address?)
-    pub event Deposit(id: UInt64, to: Address?)
-    pub event TemplateCreated(id: UInt64, metadata: {String:String})
-    pub event SetCreated(setID: UInt64, name: String, description: String, website: String, imageURI: String, creator: Address, marketFee: UFix64)
-    pub event SetAddedAllowedAccount(setID: UInt64, allowedAccount: Address)
-    pub event SetRemovedAllowedAccount(setID: UInt64, allowedAccount: Address)
-    pub event TemplateAddedToSet(setID: UInt64, templateID: UInt64)
-    pub event TemplateLockedFromSet(setID: UInt64, templateID: UInt64, numNFTs: UInt64)
-    pub event SetLocked(setID: UInt64)
-    pub event Minted(assetID: UInt64, templateID: UInt64, setID: UInt64, mintNumber: UInt64)
+    access(all) event ContractInitialized()
+    access(all) event Withdraw(id: UInt64, from: Address?)
+    access(all) event Deposit(id: UInt64, to: Address?)
+    access(all) event TemplateCreated(id: UInt64, metadata: {String:String})
+    access(all) event SetCreated(setID: UInt64, name: String, description: String, website: String, imageURI: String, creator: Address, marketFee: UFix64)
+    access(all) event SetAddedAllowedAccount(setID: UInt64, allowedAccount: Address)
+    access(all) event SetRemovedAllowedAccount(setID: UInt64, allowedAccount: Address)
+    access(all) event TemplateAddedToSet(setID: UInt64, templateID: UInt64)
+    access(all) event TemplateLockedFromSet(setID: UInt64, templateID: UInt64, numNFTs: UInt64)
+    access(all) event SetLocked(setID: UInt64)
+    access(all) event Minted(assetID: UInt64, templateID: UInt64, setID: UInt64, mintNumber: UInt64)
 
-    // Named Paths
-    //
-    pub let CollectionStoragePath: StoragePath
-    pub let CollectionPublicPath: PublicPath
+    /// Storage and Public Paths
+    access(all) let CollectionStoragePath: StoragePath
+    access(all) let CollectionPublicPath: PublicPath
 
     // Variable size dictionary of Play structs
     access(self) var templateDatas: {UInt64: Template}
@@ -38,18 +42,18 @@ pub contract Gaia: NonFungibleToken {
     // totalSupply
     // The total number of Gaia that have been minted
     //
-    pub var totalSupply: UInt64
+    access(all) var totalSupply: UInt64
 
     // The ID that is used to create Templates.
     // Every time a Template is created, templateID is assigned
     // to the new Template's ID and then is incremented by 1.
-    pub var nextTemplateID: UInt64
+    access(all)  var nextTemplateID: UInt64
 
     // The ID that is used to create Sets. Every time a Set is created
     // setID is assigned to the new set's ID and then is incremented by 1.
-    pub var nextSetID: UInt64
+    access(all)  var nextSetID: UInt64
 
-    pub fun royaltyAddress(): Address {
+    access(all) fun royaltyAddress(): Address {
         return 0x9eef2e4511390ce4
     }
 
@@ -68,14 +72,14 @@ pub contract Gaia: NonFungibleToken {
     // its metadata. The templates are publicly accessible, so anyone can
     // read the metadata associated with a specific template ID
     //
-    pub struct Template {
+    access(all) struct Template {
 
         // The unique ID for the template
-        pub let templateID: UInt64
+        access(all) let templateID: UInt64
 
         // Stores all the metadata about the template as a string mapping
         // This is not the long term way NFT metadata will be stored.
-        pub let metadata: {String: String}
+        access(all) let metadata: {String: String}
 
         init(metadata: {String: String}) {
             pre {
@@ -85,7 +89,7 @@ pub contract Gaia: NonFungibleToken {
             self.metadata = metadata
 
             // Increment the ID so that it isn't used again
-            Gaia.nextTemplateID = Gaia.nextTemplateID + 1 as UInt64
+            Gaia.nextTemplateID = Gaia.nextTemplateID + 1
 
             emit TemplateCreated(id: self.templateID, metadata: metadata)
         }
@@ -100,35 +104,35 @@ pub contract Gaia: NonFungibleToken {
     // at the end of the contract. Only the admin has the ability
     // to modify any data in the private Set resource.
     //
-    pub struct SetData {
+    access(all) struct SetData {
 
         // Unique ID for the Set
-        pub let setID: UInt64
+        access(all) let setID: UInt64
 
         // Name of the Set
-        pub let name: String
+        access(all) let name: String
 
         // Brief description of the Set
-        pub let description: String
+        access(all) let description: String
 
         // Set cover image
-        pub let imageURI: String
+        access(all) let imageURI: String
 
         // Set website url
-        pub let website: String
+        access(all) let website: String
 
         // Set creator account address
-        pub let creator: Address
+        access(all) let creator: Address
 
         // Accounts allowed to mint
         access(self) let allowedAccounts: [Address]
 
-        pub fun returnAllowedAccounts(): [Address] {
+        access(all) view fun returnAllowedAccounts(): [Address] {
             return self.allowedAccounts
         }
 
         // Set marketplace fee
-        pub let marketFee: UFix64
+        access(all) let marketFee: UFix64
 
         init(name: String, description: String, website: String, imageURI: String, creator: Address, marketFee: UFix64) {
             pre {
@@ -153,7 +157,8 @@ pub contract Gaia: NonFungibleToken {
             emit SetCreated(setID: self.setID, name: name, description: description, website: website, imageURI: imageURI, creator: creator, marketFee: marketFee)
         }
 
-        pub fun addAllowedAccount(account: Address) {
+        // TODO what entitlement allows for this?
+        access(all) fun addAllowedAccount(account: Address) {
             pre {
                 !self.allowedAccounts.contains(account): "Account already allowed"
             }
@@ -162,8 +167,8 @@ pub contract Gaia: NonFungibleToken {
 
             emit SetAddedAllowedAccount(setID: self.setID, allowedAccount: account)
         }
-
-        pub fun removeAllowedAccount(account: Address) {
+        // TODO this is safe because struct right?
+        access(all) fun removeAllowedAccount(account: Address) {
             pre {
                 self.creator != account: "Cannot remove set creator"
                 self.allowedAccounts.contains(account): "Not in allowed accounts"
@@ -201,20 +206,20 @@ pub contract Gaia: NonFungibleToken {
     //
     // If lockAll() and lock() are called back-to-back,
     // the Set is closed off forever and nothing more can be done with it.
-    pub resource Set {
+    access(all) resource Set {
 
         // Unique ID for the set
-        pub let setID: UInt64
+        access(all) let setID: UInt64
 
         // Array of templates that are a part of this set.
         // When a template is added to the set, its ID gets appended here.
         // The ID does not get removed from this array when a templates is locked.
-        pub var templates: [UInt64]
+        access(all) var templates: [UInt64]
 
         // Map of template IDs that Indicates if a template in this Set can be minted.
         // When a templates is added to a Set, it is mapped to false (not locked).
         // When a templates is locked, this is set to true and cannot be changed.
-        pub var lockedTemplates: {UInt64: Bool}
+        access(all) var lockedTemplates: {UInt64: Bool}
 
         // Indicates if the Set is currently locked.
         // When a Set is created, it is unlocked
@@ -225,13 +230,13 @@ pub contract Gaia: NonFungibleToken {
         // If a Set is locked, templates cannot be added, but
         // NFTs can still be minted from templates
         // that exist in the Set.
-        pub var locked: Bool
+        access(all) var locked: Bool
 
         // Mapping of Template IDs that indicates the number of NFTs
         // that have been minted for specific Templates in this Set.
         // When a NFT is minted, this value is stored in the NFT to
         // show its place in the Set, eg. 13 of 60.
-        pub var numberMintedPerTemplate: {UInt64: UInt64}
+        access(all) var numberMintedPerTemplate: {UInt64: UInt64}
 
         init(name: String, description: String, website: String, imageURI: String, creator: Address, marketFee: UFix64)
          {
@@ -253,7 +258,7 @@ pub contract Gaia: NonFungibleToken {
         // The Set needs to be not locked
         // The template can't have already been added to the Set
         //
-        pub fun addTemplate(templateID: UInt64) {
+        access(Owner) fun addTemplate(templateID: UInt64) {
             pre {
                 Gaia.templateDatas[templateID] != nil: "Cannot add the Template to Set: Template doesn't exist."
                 !self.locked: "Cannot add the template to the Set after the set has been locked."
@@ -276,7 +281,8 @@ pub contract Gaia: NonFungibleToken {
         //
         // Parameters: templateIDs: The IDs of the templates that are being added
         //
-        pub fun addTemplates(templateIDs: [UInt64]) {
+        //TODO should this be access(Owner)? Called by Admin func
+        access(all) fun addTemplates(templateIDs: [UInt64]) {
             for template in templateIDs {
                 self.addTemplate(templateID: template)
             }
@@ -289,7 +295,7 @@ pub contract Gaia: NonFungibleToken {
         // Pre-Conditions:
         // The Play is part of the Set and not retired (available for minting).
         //
-        pub fun lockTemplate(templateID: UInt64) {
+        access(Owner) fun lockTemplate(templateID: UInt64) {
             pre {
                 self.lockedTemplates[templateID] != nil: "Cannot lock the template: Template doesn't exist in this set!"
             }
@@ -304,7 +310,7 @@ pub contract Gaia: NonFungibleToken {
         // lockAll lock all the templates in the Set
         // Afterwards, none of the locked templates will be able to mint new NFTs
         //
-        pub fun lockAll() {
+        access(Owner) fun lockAll() {
             for template in self.templates {
                 self.lockTemplate(templateID: template)
             }
@@ -314,7 +320,7 @@ pub contract Gaia: NonFungibleToken {
         //
         // Pre-Conditions:
         // The Set should not be locked
-        pub fun lock() {
+        access(Owner) fun lock() {
             if !self.locked {
                 self.locked = true
                 emit SetLocked(setID: self.setID)
@@ -330,7 +336,8 @@ pub contract Gaia: NonFungibleToken {
         //
         // Returns: The NFT that was minted
         //
-        pub fun mintNFT(templateID: UInt64): @NFT {
+        // TODO check this
+        access(all) fun mintNFT(templateID: UInt64): @NFT {
             pre {
                 self.lockedTemplates[templateID] != nil: "Cannot mint the NFT: This template doesn't exist."
                 !self.lockedTemplates[templateID]!: "Cannot mint the NFT from this template: This template has been locked."
@@ -359,7 +366,8 @@ pub contract Gaia: NonFungibleToken {
         //
         // Returns: Collection object that contains all the NFTs that were minted
         //
-        pub fun batchMintNFT(templateID: UInt64, quantity: UInt64): @Collection {
+        //TODO check this entitlement
+        access(all) fun batchMintNFT(templateID: UInt64, quantity: UInt64): @Collection {
             let newCollection <- create Collection()
 
             var i: UInt64 = 0
@@ -372,17 +380,17 @@ pub contract Gaia: NonFungibleToken {
         }
     }
 
-    pub struct NFTData {
+    access(all) struct NFTData {
 
         // The ID of the Set that the Moment comes from
-        pub let setID: UInt64
+        access(all) let setID: UInt64
 
         // The ID of the Play that the Moment references
-        pub let templateID: UInt64
+        access(all) let templateID: UInt64
 
         // The place in the edition that this Moment was minted
         // Otherwise know as the serial number
-        pub let mintNumber: UInt64
+        access(all) let mintNumber: UInt64
 
         init(setID: UInt64, templateID: UInt64, mintNumber: UInt64) {
             self.setID = setID
@@ -391,16 +399,29 @@ pub contract Gaia: NonFungibleToken {
         }
     }
 
+    access(contract) fun parseExternalURL(setData: SetData): MetadataViews.ExternalURL {
+        //TODO should this be Flowty?
+        let baseURI = "https://ongaia.com/"
+        return MetadataViews.ExternalURL(baseURI)
+    }
+
     // NFT
     // A Flow Asset as an NFT
     //
-    pub resource NFT: NonFungibleToken.INFT, MetadataViews.Resolver {
+    access(all) resource NFT: NonFungibleToken.NFT{
         // The token's ID
-        pub let id: UInt64
+        access(all) let id: UInt64
         // Struct of NFT metadata
-        pub let data: NFTData
+        access(all) let data: NFTData
 
-        pub fun getViews(): [Type] {
+        /// createEmptyCollection creates an empty Collection
+        /// and returns it to the caller so that they can own NFTs
+        /// @{NonFungibleToken.Collection}
+        access(all) fun createEmptyCollection(): @{NonFungibleToken.Collection} {
+            return <-Gaia.createEmptyCollection(nftType: Type<@Gaia.NFT>())
+        }
+
+        access(all) view fun getViews(): [Type] {
             return [
                 Type<MetadataViews.NFTView>(),
                 Type<MetadataViews.Display>(),
@@ -421,35 +442,16 @@ pub contract Gaia: NonFungibleToken {
             return uri.length > 55 ? uri.slice(from: 54, upTo: uri.length) : nil
         }
 
-        access(contract) fun parseThumbnail(img: String): AnyStruct{MetadataViews.File}? {
-            var file: AnyStruct{MetadataViews.File}? = nil
+        access(contract) fun parseThumbnail(img: String): {MetadataViews.File}? {
+            var file: {MetadataViews.File}? = nil
 
             if img.slice(from: 0, upTo: 7) == "ipfs://" {
-                file = MetadataViews.IPFSFile(self.parseIPFSURICID(uri: img), self.parseIPFSURIPath(uri: img))
+                file = MetadataViews.IPFSFile(cid: self.parseIPFSURICID(uri: img), path: self.parseIPFSURIPath(uri: img))
             } else {
                 file = MetadataViews.HTTPFile(url: img)
             }
 
             return file
-        }
-
-        access(contract) fun parseExternalURL(setData: SetData): MetadataViews.ExternalURL {
-            let baseURI = "https://ongaia.com/"
-            return MetadataViews.ExternalURL(baseURI)
-        }
-
-        access(contract) fun getCollectionSquareImage(setData: SetData): MetadataViews.Media {
-            return MetadataViews.Media(
-                file: MetadataViews.HTTPFile("https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-square.png"),
-                mediaType: "image/png"
-            )
-        }
-
-        access(contract) fun getCollectionBannerImage(setData: SetData): MetadataViews.Media {
-            return MetadataViews.Media(
-                file: MetadataViews.HTTPFile("https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-banner.png"),
-                mediaType: "image/png"
-            )
         }
 
         access(contract) fun parseTraits(metadata: {String: String}, setData: SetData): MetadataViews.Traits? {
@@ -460,22 +462,22 @@ pub contract Gaia: NonFungibleToken {
                 if bypass.contains(key) {
                     continue
                 }
-                traits.append(MetadataViews.Trait(key: key, value: metadata[key]!, nil, nil))
+                traits.append(MetadataViews.Trait(name: key, value: metadata[key]!, displayType: nil, rarity: nil))
             }
 
-            traits.append(MetadataViews.Trait(key: "setID", value: setData.setID.toString(), nil, nil))
-            traits.append(MetadataViews.Trait(key: "set", value: setData.name, nil, nil))
+            traits.append(MetadataViews.Trait(name: "setID", value: setData.setID.toString(), displayType: nil, rarity: nil))
+            traits.append(MetadataViews.Trait(name: "set", value: setData.name, displayType: nil, rarity: nil))
 
             return MetadataViews.Traits(traits)
         }
-
-        pub fun resolveView(_ view: Type): AnyStruct? {
+        // should this be view only
+        access(all) fun resolveView(_ view: Type): AnyStruct? {
             var setData: SetData = Gaia.getSetInfo(setID: self.data.setID)!
             var templateMetadata: {String: String} = Gaia.getTemplateMetaData(templateID: self.data.templateID)!
 
             switch view {
                 case Type<MetadataViews.NFTView>():
-                    let viewResolver = &self as &{MetadataViews.Resolver}
+                    let viewResolver = &self as &{ViewResolver.Resolver}
                     return MetadataViews.NFTView(
                         id: self.id,
                         uuid: self.uuid,
@@ -489,42 +491,17 @@ pub contract Gaia: NonFungibleToken {
                 case Type<MetadataViews.Display>():
                     var name: String = setData.name == "Ballerz" ? "Baller #".concat(templateMetadata["id"]!) : templateMetadata["title"]!
                     var description: String = templateMetadata["description"]!
-                    var thumbnail: AnyStruct{MetadataViews.File}? = self.parseThumbnail(img: templateMetadata["img"]!)
-                    return MetadataViews.Display(name, description, thumbnail!)
+                    var thumbnail: {MetadataViews.File}? = self.parseThumbnail(img: templateMetadata["img"]!)
+                    return MetadataViews.Display(name: name, description: description, thumbnail: thumbnail!)
                 case Type<MetadataViews.ExternalURL>():
-                    return self.parseExternalURL(setData: setData)
-                case Type<MetadataViews.NFTCollectionData>():
-                    return MetadataViews.NFTCollectionData(
-                        storagePath: Gaia.CollectionStoragePath,
-                        publicPath: Gaia.CollectionPublicPath,
-                        providerPath: /private/GaiaCollection001,
-                        publicCollection: Type<&Gaia.Collection{Gaia.CollectionPublic}>(),
-                        publicLinkedType: Type<&Gaia.Collection{Gaia.CollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(),
-                        providerLinkedType: Type<&Gaia.Collection{Gaia.CollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}>(),
-                        createEmptyCollectionFunction: (
-                            fun (): @NonFungibleToken.Collection {
-                                return <- Gaia.createEmptyCollection()
-                            }
-                        )
-                )
-                case Type<MetadataViews.NFTCollectionDisplay>():
-                    return MetadataViews.NFTCollectionDisplay(
-                        name: "Ballerz",
-                        description: "A basketball-inspired generative NFT living on the Flow blockchain",
-                        externalURL: self.parseExternalURL(setData: setData),
-                        squareImage: self.getCollectionSquareImage(setData: setData),
-                        bannerImage: self.getCollectionBannerImage(setData: setData),
-                        socials: {
-                            "twitter": MetadataViews.ExternalURL("https://twitter.com/ongaia")
-                        }
-                    )
+                    return Gaia.parseExternalURL(setData: setData)
                 case Type<MetadataViews.Traits>():
                     var metadata = Gaia.getTemplateMetaData(templateID: self.data.templateID)
                     return self.parseTraits(metadata: metadata!, setData: setData)
                 case Type<MetadataViews.Royalties>():
                     let royalties: [MetadataViews.Royalty] = []
                     let royaltyReceiverCap =
-                        getAccount(Gaia.royaltyAddress()).getCapability<&{FungibleToken.Receiver}>(/public/dapperUtilityCoinReceiver)
+                        getAccount(Gaia.royaltyAddress()).capabilities.get<&{FungibleToken.Receiver}>(/public/dapperUtilityCoinReceiver)
                     if royaltyReceiverCap.check() {
                         royalties.append(
                             MetadataViews.Royalty(
@@ -562,7 +539,7 @@ pub contract Gaia: NonFungibleToken {
     // allows the owner to perform important functions to modify the
     // various aspects of the Templates, Sets, and NFTs
     //
-    pub resource Admin {
+    access(all) resource Admin {
 
         // createTemplate creates a new Template struct
         // and stores it in the Templates dictionary in the TopShot smart contract
@@ -572,7 +549,7 @@ pub contract Gaia: NonFungibleToken {
         //
         // Returns: the ID of the new Template object
         //
-        pub fun createTemplate(metadata: {String: String}): UInt64 {
+        access(Owner) fun createTemplate(metadata: {String: String}): UInt64 {
             // Create the new Template
             var newTemplate = Template(metadata: metadata)
             let newID = newTemplate.templateID
@@ -583,7 +560,7 @@ pub contract Gaia: NonFungibleToken {
             return newID
         }
 
-         pub fun createTemplates(templates: [{String: String}], setID: UInt64, authorizedAccount: Address){
+         access(Owner) fun createTemplates(templates: [{String: String}], setID: UInt64, authorizedAccount: Address){
 
               var templateIDs: [UInt64] = []
             for metadata in templates {
@@ -598,7 +575,7 @@ pub contract Gaia: NonFungibleToken {
         //
         // Parameters: name: The name of the Set
         //
-        pub fun createSet(name: String, description: String, website: String, imageURI: String, creator: Address, marketFee: UFix64) {
+        access(Owner) fun createSet(name: String, description: String, website: String, imageURI: String, creator: Address, marketFee: UFix64) {
             // Create the new Set
             var newSet <- create Set(name: name, description: description, website: website, imageURI: imageURI, creator: creator, marketFee: marketFee)
             // Store it in the sets mapping field
@@ -614,7 +591,7 @@ pub contract Gaia: NonFungibleToken {
         // Returns: A reference to the Set with all of the fields
         // and methods exposed
         //
-        pub fun borrowSet(setID: UInt64, authorizedAccount: Address): &Set {
+        access(all) view fun borrowSet(setID: UInt64, authorizedAccount: Address): &Set {
             pre {
                 Gaia.sets[setID] != nil: "Cannot borrow Set: The Set doesn't exist"
                 Gaia.setDatas[setID]!.returnAllowedAccounts().contains(authorizedAccount): "Account not authorized"
@@ -627,7 +604,7 @@ pub contract Gaia: NonFungibleToken {
 
         // createNewAdmin creates a new Admin resource
         //
-        pub fun createNewAdmin(): @Admin {
+        access(Owner) fun createNewAdmin(): @Admin {
             return <-create Admin()
         }
     }
@@ -635,12 +612,12 @@ pub contract Gaia: NonFungibleToken {
     // This is the interface that users can cast their Gaia Collection as
     // to allow others to deposit Gaia into their Collection. It also allows for reading
     // the details of Gaia in the Collection.
-    pub resource interface CollectionPublic {
-        pub fun deposit(token: @NonFungibleToken.NFT)
-        pub fun batchDeposit(tokens: @NonFungibleToken.Collection)
-        pub fun getIDs(): [UInt64]
-        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
-        pub fun borrowGaiaNFT(id: UInt64): &Gaia.NFT? {
+    access(all) resource interface CollectionPublic {
+        access(all) fun deposit(token: @{NonFungibleToken.NFT})
+        access(all) fun batchDeposit(tokens: @{NonFungibleToken.Collection})
+        access(all) view fun getIDs(): [UInt64]
+        access(all) view fun borrowNFT(id: UInt64): &{NonFungibleToken.NFT}
+        access(all) view fun borrowGaiaNFT(id: UInt64): &Gaia.NFT? {
             // If the result isn't nil, the id of the returned reference
             // should be the same as the argument to the function
             post {
@@ -653,16 +630,32 @@ pub contract Gaia: NonFungibleToken {
     // Collection
     // A collection of GaiaAsset NFTs owned by an account
     //
-    pub resource Collection: CollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection {
+    access(all) resource Collection: NonFungibleToken.Collection{
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
         //
-        pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
+        access(all) var ownedNFTs: @{UInt64: {NonFungibleToken.NFT}}
 
+                /// getSupportedNFTTypes returns a list of NFT types that this receiver accepts
+        access(all) view fun getSupportedNFTTypes(): {Type: Bool} {
+            let supportedTypes: {Type: Bool} = {}
+            supportedTypes[Type<@Gaia.NFT>()] = true
+            return supportedTypes
+        }
+
+        /// Returns whether or not the given type is accepted by the collection
+        /// A collection that can accept any type should just return true by default
+        access(all) view fun isSupportedNFTType(type: Type): Bool {
+           if type == Type<@Gaia.NFT>() {
+            return true
+           } else {
+            return false
+           }
+        }
         // withdraw
         // Removes an NFT from the collection and moves it to the caller
         //
-        pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
+        access(NonFungibleToken.Withdraw) fun withdraw(withdrawID: UInt64): @{NonFungibleToken.NFT} {
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
             emit Withdraw(id: token.id, from: self.owner?.address)
@@ -677,7 +670,7 @@ pub contract Gaia: NonFungibleToken {
         // Returns: @NonFungibleToken.Collection: A collection that contains
         //                                        the withdrawn NFTs
         //
-        pub fun batchWithdraw(ids: [UInt64]): @NonFungibleToken.Collection {
+        access(NonFungibleToken.Withdraw) fun batchWithdraw(ids: [UInt64]): @{NonFungibleToken.Collection} {
             // Create a new empty Collection
             var batchCollection <- create Collection()
 
@@ -694,7 +687,7 @@ pub contract Gaia: NonFungibleToken {
         // Takes a NFT and adds it to the collections dictionary
         // and adds the ID to the id array
         //
-        pub fun deposit(token: @NonFungibleToken.NFT) {
+        access(all) fun deposit(token: @{NonFungibleToken.NFT}) {
             let token <- token as! @Gaia.NFT
 
             let id: UInt64 = token.id
@@ -709,7 +702,7 @@ pub contract Gaia: NonFungibleToken {
 
         // batchDeposit takes a Collection object as an argument
         // and deposits each contained NFT into this Collection
-        pub fun batchDeposit(tokens: @NonFungibleToken.Collection) {
+        access(all) fun batchDeposit(tokens: @{NonFungibleToken.Collection}) {
 
             // Get an array of the IDs to be deposited
             let keys = tokens.getIDs()
@@ -726,7 +719,7 @@ pub contract Gaia: NonFungibleToken {
         // getIDs
         // Returns an array of the IDs that are in the collection
         //
-        pub fun getIDs(): [UInt64] {
+        access(all) view fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
         }
 
@@ -734,8 +727,8 @@ pub contract Gaia: NonFungibleToken {
         // Gets a reference to an NFT in the collection
         // so that the caller can read its metadata and call its methods
         //
-        pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
-            return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
+        access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT} {
+            return (&self.ownedNFTs[id])!
         }
 
         // borrowGaiaNFT
@@ -743,9 +736,9 @@ pub contract Gaia: NonFungibleToken {
         // exposing all of its fields (including the typeID).
         // This is safe as there are no functions that can be called on the GaiaAsset.
         //
-        pub fun borrowGaiaNFT(id: UInt64): &Gaia.NFT? {
+        access(all) view fun borrowGaiaNFT(id: UInt64): &Gaia.NFT? {
             if self.ownedNFTs[id] != nil {
-                let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
+                let ref = (&self.ownedNFTs[id] as &{NonFungibleToken.NFT}?)!
                 return ref as! &Gaia.NFT
             } else {
                 return nil
@@ -757,16 +750,23 @@ pub contract Gaia: NonFungibleToken {
         // exposing all of its fields (including the typeID).
         // This is safe as there are no functions that can be called on the GaiaAsset.
         //
-        pub fun borrowViewResolver(id: UInt64): &AnyResource{MetadataViews.Resolver} {
-            let nft = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
-            let gaiaNFT = nft as! &Gaia.NFT
-            return gaiaNFT as &AnyResource{MetadataViews.Resolver}
+        access(all) view fun borrowViewResolver(id: UInt64): &{ViewResolver.Resolver} {
+            let nft = (&self.ownedNFTs[id] as &{NonFungibleToken.NFT}?)!
+            return nft as! &Gaia.NFT
         }
 
-        // destructor
-        destroy() {
-            destroy self.ownedNFTs
+        /// createEmptyCollection creates an empty Collection of the same type
+        /// and returns it to the caller
+        /// @return A an empty collection of the same type
+        access(all) fun createEmptyCollection(): @{NonFungibleToken.Collection} {
+            return <-Gaia.createEmptyCollection(nftType: Type<@Gaia.NFT>())
         }
+
+        // TODO replace this with something?
+        // // destructor
+        // destroy() {
+        //     destroy self.ownedNFTs
+        // }
 
         // initializer
         //
@@ -778,14 +778,79 @@ pub contract Gaia: NonFungibleToken {
     // createEmptyCollection
     // public function that anyone can call to create a new empty collection
     //
-    pub fun createEmptyCollection(): @NonFungibleToken.Collection {
+    access(all) fun createEmptyCollection(nftType: Type): @{NonFungibleToken.Collection} {
         return <- create Collection()
     }
+
+    access(contract) fun getCollectionSquareImage(setData: SetData): MetadataViews.Media {
+        return MetadataViews.Media(
+            file: MetadataViews.HTTPFile(url: "https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-square.png"),
+            mediaType: "image/png"
+        )
+    }
+
+    access(contract) fun getCollectionBannerImage(setData: SetData): MetadataViews.Media {
+        return MetadataViews.Media(
+            file: MetadataViews.HTTPFile(url: "https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-banner.png"),
+            mediaType: "image/png"
+        )
+    }
+
+
+
+    /// Function that returns all the Metadata Views implemented by a Non Fungible Token
+        ///
+        /// @return An array of Types defining the implemented views. This value will be used by
+        ///         developers to know which parameter to pass to the resolveView() method.
+        ///
+        access(all) view fun getContractViews(resourceType: Type?): [Type] {
+        return [
+            Type<MetadataViews.NFTCollectionData>(),
+            Type<MetadataViews.NFTCollectionDisplay>()
+        ]
+        }
+
+        /// Function that resolves a metadata view for this contract.
+        ///
+        /// @param view: The Type of the desired view.
+        /// @return A structure representing the requested view.
+        ///
+
+        // TODO setData here should be for the contract itself, not individual sets..
+        access(all) fun resolveContractView(resourceType: Type?, viewType: Type): AnyStruct? {
+            switch viewType {
+            case Type<MetadataViews.NFTCollectionData>():
+                return MetadataViews.NFTCollectionData(
+                    storagePath: Gaia.CollectionStoragePath,
+                    publicPath: Gaia.CollectionPublicPath,
+                    publicCollection: Type<&{Gaia.CollectionPublic}>(),
+                    publicLinkedType: Type<&{Gaia.CollectionPublic}>(),
+                    createEmptyCollectionFunction: (
+                        fun (): @{NonFungibleToken.Collection} {
+                            return <- Gaia.createEmptyCollection(nftType: Type<@Gaia.NFT>())
+                        }
+                    )
+                )
+            case Type<MetadataViews.NFTCollectionDisplay>():
+                return MetadataViews.NFTCollectionDisplay(
+                    name: "Ballerz",
+                    description: "A basketball-inspired generative NFT living on the Flow blockchain",
+                    externalURL: self.parseExternalURL(setData: setData),
+                    squareImage: self.getCollectionSquareImage(setData: setData),
+                    bannerImage: self.getCollectionBannerImage(setData: setData),
+                    socials: {
+                        "twitter": MetadataViews.ExternalURL("https://twitter.com/ongaia")
+                    }
+                )
+            }
+            return nil
+    
+        }
 
     // getAllTemplates returns all the plays in topshot
     //
     // Returns: An array of all the plays that have been created
-    pub fun getAllTemplates(): [Gaia.Template] {
+    access(all) view fun getAllTemplates(): [Gaia.Template] {
         return Gaia.templateDatas.values
     }
 
@@ -794,7 +859,7 @@ pub contract Gaia: NonFungibleToken {
     // Parameters: templateID: The id of the Template that is being searched
     //
     // Returns: The metadata as a String to String mapping optional
-    pub fun getTemplateMetaData(templateID: UInt64): {String: String}? {
+    access(all) view fun getTemplateMetaData(templateID: UInt64): {String: String}? {
         return self.templateDatas[templateID]?.metadata
     }
 
@@ -807,7 +872,7 @@ pub contract Gaia: NonFungibleToken {
     //             field: The field to search for
     //
     // Returns: The metadata field as a String Optional
-    pub fun getTemplateMetaDataByField(templateID: UInt64, field: String): String? {
+    access(all) view fun getTemplateMetaDataByField(templateID: UInt64, field: String): String? {
         // Don't force a revert if the playID or field is invalid
         if let template = Gaia.templateDatas[templateID] {
             return template.metadata[field]
@@ -822,22 +887,22 @@ pub contract Gaia: NonFungibleToken {
     // Parameters: setID: The id of the Set that is being searched
     //
     // Returns: The name of the Set
-    pub fun getSetName(setID: UInt64): String? {
+    access(all) view fun getSetName(setID: UInt64): String? {
         // Don't force a revert if the setID is invalid
         return Gaia.setDatas[setID]?.name
     }
 
-    pub fun getSetMarketFee(setID: UInt64): UFix64? {
+    access(all) view fun getSetMarketFee(setID: UInt64): UFix64? {
         // Don't force a revert if the setID is invalid
         return Gaia.setDatas[setID]?.marketFee
     }
 
-    pub fun getSetImage(setID: UInt64): String? {
+    access(all) view fun getSetImage(setID: UInt64): String? {
         // Don't force a revert if the setID is invalid
         return Gaia.setDatas[setID]?.imageURI
     }
 
-    pub fun getSetInfo(setID: UInt64): SetData? {
+    access(all) view fun getSetInfo(setID: UInt64): SetData? {
         // Don't force a revert if the setID is invalid
         return Gaia.setDatas[setID]
     }
@@ -848,7 +913,9 @@ pub contract Gaia: NonFungibleToken {
     // Parameters: setName: The name of the Set that is being searched
     //
     // Returns: An array of the IDs of the Set if it exists, or nil if doesn't
-    pub fun getSetIDsByName(setName: String): [UInt64]? {
+
+    // TODO confirm this can't be view func, and is safe as acccess all
+    access(all) fun getSetIDsByName(setName: String): [UInt64]? {
         var setIDs: [UInt64] = []
 
         // Iterate through all the setDatas and search for the name
@@ -873,7 +940,7 @@ pub contract Gaia: NonFungibleToken {
     // Parameters: setID: The id of the Set that is being searched
     //
     // Returns: An array of Template IDs
-    pub fun getTemplatesInSet(setID: UInt64): [UInt64]? {
+    access(all) view fun getTemplatesInSet(setID: UInt64): [UInt64]? {
         // Don't force a revert if the setID is invalid
         return Gaia.sets[setID]?.templates
     }
@@ -887,7 +954,9 @@ pub contract Gaia: NonFungibleToken {
     //             playID: The id of the Play that is being searched
     //
     // Returns: Boolean indicating if the template is locked or not
-    pub fun isSetTemplateLocked(setID: UInt64, templateID: UInt64): Bool? {
+
+    //TODO confirm this can't be view func and is safe to access all
+    access(all) fun isSetTemplateLocked(setID: UInt64, templateID: UInt64): Bool? {
         // Don't force a revert if the set or play ID is invalid
         // Remove the set from the dictionary to get its field
         if let setToRead <- Gaia.sets.remove(key: setID) {
@@ -915,7 +984,7 @@ pub contract Gaia: NonFungibleToken {
     // Parameters: setID: The id of the Set that is being searched
     //
     // Returns: Boolean indicating if the Set is locked or not
-    pub fun isSetLocked(setID: UInt64): Bool? {
+    access(all) view fun isSetLocked(setID: UInt64): Bool? {
         // Don't force a revert if the setID is invalid
         return Gaia.sets[setID]?.locked
     }
@@ -928,7 +997,10 @@ pub contract Gaia: NonFungibleToken {
     //
     // Returns: The total number of NFTs
     //          that have been minted from an set and template
-    pub fun getTotalMinted(setID: UInt64, templateID: UInt64): UInt64? {
+
+
+    // TODO confirm this can't be view func, and is safe as acccess all
+    access(all) fun getTotalMinted(setID: UInt64, templateID: UInt64): UInt64? {
         // Don't force a revert if the Set or play ID is invalid
         // Remove the Set from the dictionary to get its field
         if let setToRead <- Gaia.sets.remove(key: setID) {
@@ -952,26 +1024,30 @@ pub contract Gaia: NonFungibleToken {
     // If it has a collection but does not contain the itemID, return nil.
     // If it has a collection and that collection contains the itemID, return a reference to that.
     //
-    pub fun fetch(_ from: Address, itemID: UInt64): &Gaia.NFT? {
-        let collection = getAccount(from)
-            .getCapability(Gaia.CollectionPublicPath)
-            .borrow<&Gaia.Collection{Gaia.CollectionPublic}>()
-            ?? panic("Couldn't get collection")
-        // We trust Gaia.Collection.borowGaiaAsset to get the correct itemID
-        // (it checks it before returning it).
-        return collection.borrowGaiaNFT(id: itemID)
-    }
 
-    // checkSetup
-    // Get a reference to a GaiaAsset from an account's Collection, if available.
-    // If an account does not have a Gaia.Collection, returns false.
-    // If it has a collection, return true.
+    //TODO START is this the same functionality as isSupportedNFTType? and getSupportedNFTTypes?
     //
-    pub fun checkSetup(_ address: Address): Bool {
-        return getAccount(address)
-        .getCapability<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
-        .check()
-    }
+    // access(all) fun fetch(_ from: Address, itemID: UInt64): &Gaia.NFT? {
+    //     let collection = getAccount(from)
+    //         .getCapability(Gaia.CollectionPublicPath)
+    //         .borrow<&{Gaia.CollectionPublic}>()
+    //         ?? panic("Couldn't get collection")
+    //     // We trust Gaia.Collection.borowGaiaAsset to get the correct itemID
+    //     // (it checks it before returning it).
+    //     return collection.borrowGaiaNFT(id: itemID)
+    // }
+
+    // // checkSetup
+    // // Get a reference to a GaiaAsset from an account's Collection, if available.
+    // // If an account does not have a Gaia.Collection, returns false.
+    // // If it has a collection, return true.
+    // //
+    // access(all) fun checkSetup(_ address: Address): Bool {
+    //     return getAccount(address)
+    //     .getCapability<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
+    //     .check()
+    // }
+    //TODO END
 
     // initializer
     //
@@ -990,12 +1066,16 @@ pub contract Gaia: NonFungibleToken {
         self.totalSupply = 0
 
         // Put a new Collection in storage
-        self.account.save<@Collection>(<- create Collection(), to: self.CollectionStoragePath)
+        self.account.storage.save<@Collection>(<- create Collection(), to: self.CollectionStoragePath)
+
+        // create a public capability for the collection
+        let cap = self.account.capabilities.storage.issue<&{Gaia.CollectionPublic}>(self.CollectionStoragePath)
+        self.account.capabilities.publish(cap, at: self.CollectionPublicPath)
 
         // Create a public capability for the Collection
-        self.account.link<&{CollectionPublic}>(self.CollectionPublicPath, target: self.CollectionStoragePath)
+        // self.account.link<&{CollectionPublic}>(self.CollectionPublicPath, target: self.CollectionStoragePath)
 
         // Put the Minter in storage
-        self.account.save<@Admin>(<- create Admin(), to: /storage/GaiaAdmin)
+        self.account.storage.save<@Admin>(<- create Admin(), to: /storage/GaiaAdmin)
     }
 }
