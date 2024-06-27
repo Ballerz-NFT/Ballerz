@@ -1,0 +1,14 @@
+{
+  "name": "ballerz",
+  "version": ".42",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@flowtyio/flow-contracts": "github:flowtyio/flow-contracts"
+  }
+}
