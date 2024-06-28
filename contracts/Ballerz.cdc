@@ -494,6 +494,10 @@ access(all) contract Gaia {
                     return MetadataViews.Display(name: name, description: description, thumbnail: thumbnail!)
                 case Type<MetadataViews.ExternalURL>():
                     return Gaia.parseExternalURL()
+                case Type<MetadataViews.NFTCollectionData>():
+                    return Gaia.resolveContractView(resourceType: Type<@Gaia.NFT>(), viewType: Type<MetadataViews.NFTCollectionData>())
+                case Type<MetadataViews.NFTCollectionDisplay>():
+                    return Gaia.resolveContractView(resourceType: Type<@Gaia.NFT>(), viewType: Type<MetadataViews.NFTCollectionDisplay>())
                 case Type<MetadataViews.Traits>():
                     var metadata = Gaia.getTemplateMetaData(templateID: self.data.templateID)
                     return self.parseTraits(metadata: metadata!, setData: setData)
