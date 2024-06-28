@@ -1068,9 +1068,6 @@ access(all) contract Gaia {
         let cap = self.account.capabilities.storage.issue<&{Gaia.CollectionPublic}>(self.CollectionStoragePath)
         self.account.capabilities.publish(cap, at: self.CollectionPublicPath)
 
-        // Create a public capability for the Collection
-        // self.account.link<&{CollectionPublic}>(self.CollectionPublicPath, target: self.CollectionStoragePath)
-
         // Put the Minter in storage
         self.account.storage.save<@Admin>(<- create Admin(), to: /storage/GaiaAdmin)
     }
