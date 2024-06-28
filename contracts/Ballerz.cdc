@@ -760,12 +760,6 @@ access(all) contract Gaia {
             return <-Gaia.createEmptyCollection(nftType: Type<@Gaia.NFT>())
         }
 
-        // TODO replace this with something?
-        // // destructor
-        // destroy() {
-        //     destroy self.ownedNFTs
-        // }
-
         // initializer
         //
         init () {
