@@ -1018,8 +1018,6 @@ access(all) contract Gaia {
     // If it has a collection and that collection contains the itemID, return a reference to that.
     //
 
-    //TODO START is this the same functionality as isSupportedNFTType? and getSupportedNFTTypes?
-    //
     access(all) fun fetch(_ from: Address, itemID: UInt64): &Gaia.NFT? {
         let cap = getAccount(from)
             .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
@@ -1039,7 +1037,6 @@ access(all) contract Gaia {
         .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
         return cap?.check() ?? false
     }
-    //TODO END
 
     // initializer
     //
