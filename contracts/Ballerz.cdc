@@ -280,8 +280,7 @@ access(all) contract Gaia {
         //
         // Parameters: templateIDs: The IDs of the templates that are being added
         //
-        //TODO should this be access(Owner)? Called by Admin func createTemplates, so maybe redundant
-        access(all) fun addTemplates(templateIDs: [UInt64]) {
+        access(Owner) fun addTemplates(templateIDs: [UInt64]){
             for template in templateIDs {
                 self.addTemplate(templateID: template)
             }
@@ -563,7 +562,7 @@ access(all) contract Gaia {
             return newID
         }
 
-         access(Owner) fun createTemplates(templates: [{String: String}], setID: UInt64, authorizedAccount: Address){
+         access(Owner) fun createTemplates(templates: [{String: String}], setID: UInt64, authorizedAccount: auth(Owner) &Account){
 
               var templateIDs: [UInt64] = []
             for metadata in templates {
@@ -594,15 +593,15 @@ access(all) contract Gaia {
         // Returns: A reference to the Set with all of the fields
         // and methods exposed
         //
-        access(all) view fun borrowSet(setID: UInt64, authorizedAccount: Address): &Set {
+        access(Owner) fun borrowSet(setID: UInt64, authorizedAccount: auth(Owner) &Account): auth(Owner) &Set {
             pre {
                 Gaia.sets[setID] != nil: "Cannot borrow Set: The Set doesn't exist"
-                Gaia.setDatas[setID]!.returnAllowedAccounts().contains(authorizedAccount): "Account not authorized"
+                Gaia.setDatas[setID]!.returnAllowedAccounts().contains(authorizedAccount.address): "Account not authorized"
             }
 
             // Get a reference to the Set and return it
             // use `&` to indicate the reference to the object and type
-            return (&Gaia.sets[setID] as &Set?)!
+            return (&Gaia.sets[setID])!
         }
 
         // createNewAdmin creates a new Admin resource
@@ -649,11 +648,7 @@ access(all) contract Gaia {
         /// Returns whether or not the given type is accepted by the collection
         /// A collection that can accept any type should just return true by default
         access(all) view fun isSupportedNFTType(type: Type): Bool {
-           if type == Type<@Gaia.NFT>() {
-            return true
-           } else {
-            return false
-           }
+           return type == Type<@Gaia.NFT>()
         }
         // withdraw
         // Removes an NFT from the collection and moves it to the caller
@@ -837,11 +832,11 @@ access(all) contract Gaia {
                 return MetadataViews.NFTCollectionDisplay(
                     name: "Ballerz",
                     description: "A basketball-inspired generative NFT living on the Flow blockchain",
-                    externalURL: self.parseExternalURL(), // removing setData here, not being using in func, links are hardcoded
-                    squareImage: self.getCollectionSquareImage(), // and here
-                    bannerImage: self.getCollectionBannerImage(),   // and here
+                    externalURL: self.parseExternalURL(),
+                    squareImage: self.getCollectionSquareImage(),
+                    bannerImage: self.getCollectionBannerImage(),
                     socials: {
-                        "twitter": MetadataViews.ExternalURL("https://twitter.com/ongaia")
+                        "twitter": MetadataViews.ExternalURL("https://twitter.com/@BALLERZ_NFT")
                     }
                 )
             }
@@ -956,7 +951,6 @@ access(all) contract Gaia {
     //
     // Returns: Boolean indicating if the template is locked or not
 
-    // TODO Possible to turn this into a view func or is that out of scope?
     access(all) fun isSetTemplateLocked(setID: UInt64, templateID: UInt64): Bool? {
         // Don't force a revert if the set or play ID is invalid
         // Remove the set from the dictionary to get its field
@@ -999,8 +993,6 @@ access(all) contract Gaia {
     // Returns: The total number of NFTs
     //          that have been minted from an set and template
 
-
-    // TODO Possible to turn this into a view func or is that out of scope?
     access(all) fun getTotalMinted(setID: UInt64, templateID: UInt64): UInt64? {
         // Don't force a revert if the Set or play ID is invalid
         // Remove the Set from the dictionary to get its field
