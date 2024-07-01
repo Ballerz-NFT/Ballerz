@@ -8,7 +8,6 @@ import "ViewResolver"
 //
 access(all) contract Gaia {
 
-    // TODO is this correct??
     // entitlement for all previous Admin resources/functions
     access(all) entitlement Owner
 
@@ -398,8 +397,7 @@ access(all) contract Gaia {
     }
 
     access(contract) fun parseExternalURL(): MetadataViews.ExternalURL {
-        //TODO should this be Flowty?
-        let baseURI = "https://ongaia.com/"
+        let baseURI = "https://flowty.io/"
         return MetadataViews.ExternalURL(baseURI)
     }
 
