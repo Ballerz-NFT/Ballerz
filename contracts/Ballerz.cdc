@@ -504,7 +504,7 @@ access(all) contract Gaia {
                     let royalties: [MetadataViews.Royalty] = []
                     let royaltyReceiverCap =
                         getAccount(Gaia.royaltyAddress()).capabilities.get<&{FungibleToken.Receiver}>(/public/dapperUtilityCoinReceiver)
-                    if royaltyReceiverCap?.check() == true {
+                    if royaltyReceiverCap!.check() == true {
                         royalties.append(
                             MetadataViews.Royalty(
                                 receiver: royaltyReceiverCap!,
@@ -618,7 +618,7 @@ access(all) contract Gaia {
         access(all) fun deposit(token: @{NonFungibleToken.NFT})
         access(all) fun batchDeposit(tokens: @{NonFungibleToken.Collection})
         access(all) view fun getIDs(): [UInt64]
-        access(all) view fun borrowNFT(id: UInt64): &{NonFungibleToken.NFT}
+        access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT}
         access(all) view fun borrowGaiaNFT(id: UInt64): &Gaia.NFT? {
             // If the result isn't nil, the id of the returned reference
             // should be the same as the argument to the function
@@ -632,7 +632,7 @@ access(all) contract Gaia {
     // Collection
     // A collection of GaiaAsset NFTs owned by an account
     //
-    access(all) resource Collection: NonFungibleToken.Collection{
+    access(all) resource Collection: NonFungibleToken.Collection, CollectionPublic{
         // dictionary of NFT conforming tokens
         // NFT is a resource type with an `UInt64` ID field
         //
@@ -652,7 +652,7 @@ access(all) contract Gaia {
         }
         // withdraw
         // Removes an NFT from the collection and moves it to the caller
-        //
+        
         access(NonFungibleToken.Withdraw) fun withdraw(withdrawID: UInt64): @{NonFungibleToken.NFT} {
             let token <- self.ownedNFTs.remove(key: withdrawID) ?? panic("missing NFT")
 
@@ -660,6 +660,7 @@ access(all) contract Gaia {
 
             return <-token
         }
+
 
         // batchWithdraw withdraws multiple tokens and returns them as a Collection
         //
@@ -719,6 +720,11 @@ access(all) contract Gaia {
         //
         access(all) view fun getIDs(): [UInt64] {
             return self.ownedNFTs.keys
+        }
+
+        /// Gets the amount of NFTs stored in the collection
+        access(all) view fun getLength(): Int {
+            return self.ownedNFTs.length
         }
 
         // borrowNFT
@@ -1015,10 +1021,10 @@ access(all) contract Gaia {
     access(all) fun fetch(_ from: Address, itemID: UInt64): &Gaia.NFT? {
         let cap = getAccount(from)
             .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
-        let collection =  cap?.borrow() ?? panic("Could not borrow the collection")
+        let collection =  cap!.borrow() ?? panic("Could not borrow the collection")
         // We trust Gaia.Collection.borowGaiaAsset to get the correct itemID
         // (it checks it before returning it).
-        return collection?.borrowGaiaNFT(id: itemID) ?? nil
+        return collection.borrowGaiaNFT(id: itemID) ?? nil
     }
 
     // checkSetup
@@ -1028,8 +1034,8 @@ access(all) contract Gaia {
     //
     access(all) fun checkSetup(_ address: Address): Bool {
         let cap = getAccount(address)
-        .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
-        return cap?.check() ?? false
+        .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)!
+        return cap.check()
     }
 
     // initializer

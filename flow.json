@@ -22,6 +22,13 @@
     }
   },
   "contracts": {
+    "Ballerz": {
+      "source": "./contracts/Ballerz.cdc",
+      "aliases": {
+        "testnet": "0x06f1e5cde6db0e70",
+        "testing": "0x0000000000000006"
+      }
+    },
     "FungibleToken": {
       "source": "./node_modules/@flowtyio/flow-contracts/contracts/FungibleToken.cdc",
       "aliases": {
@@ -66,13 +73,7 @@
   "deployments": {
     "emulator": {
       "emulator-account": [
-        "NonFungibleToken",
-        "ViewResolver",
-        "Burner",
-        "MetadataViews"
-      ],
-      "emulator-ft": [
-        "FungibleToken"
+        "Ballerz"
       ]
     }
   }
