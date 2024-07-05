@@ -156,7 +156,7 @@ access(all) contract Gaia {
             emit SetCreated(setID: self.setID, name: name, description: description, website: website, imageURI: imageURI, creator: creator, marketFee: marketFee)
         }
 
-        access(all) fun addAllowedAccount(account: Address) {
+        access(Owner) fun addAllowedAccount(account: Address) {
             pre {
                 !self.allowedAccounts.contains(account): "Account already allowed"
             }
@@ -166,7 +166,7 @@ access(all) contract Gaia {
             emit SetAddedAllowedAccount(setID: self.setID, allowedAccount: account)
         }
 
-        access(all) fun removeAllowedAccount(account: Address) {
+        access(Owner) fun removeAllowedAccount(account: Address) {
             pre {
                 self.creator != account: "Cannot remove set creator"
                 self.allowedAccounts.contains(account): "Not in allowed accounts"
@@ -345,12 +345,12 @@ access(all) contract Gaia {
             let numInTemplate = self.numberMintedPerTemplate[templateID]!
 
             // Mint the new moment
-            let newNFT: @NFT <- create NFT(mintNumber: numInTemplate + 1 as UInt64,
+            let newNFT: @NFT <- create NFT(mintNumber: numInTemplate + 1,
                                               templateID: templateID,
                                               setID: self.setID)
 
             // Increment the count of Moments minted for this Play
-            self.numberMintedPerTemplate[templateID] = numInTemplate + 1 as UInt64
+            self.numberMintedPerTemplate[templateID] = numInTemplate + 1
 
             return <-newNFT
         }
@@ -370,7 +370,7 @@ access(all) contract Gaia {
             var i: UInt64 = 0
             while i < quantity {
                 newCollection.deposit(token: <-self.mintNFT(templateID: templateID))
-                i = i + 1 as UInt64
+                i = i + 1
             }
 
             return <-newCollection
@@ -397,7 +397,7 @@ access(all) contract Gaia {
     }
 
     access(contract) fun parseExternalURL(): MetadataViews.ExternalURL {
-        let baseURI = "https://flowty.io/"
+        let baseURI = "https://flowty.io/collection/".concat(Gaia.account.address.toString())
         return MetadataViews.ExternalURL(baseURI)
     }
 
@@ -466,10 +466,11 @@ access(all) contract Gaia {
 
             return MetadataViews.Traits(traits)
         }
-        // should this be view only
+
         access(all) fun resolveView(_ view: Type): AnyStruct? {
             var setData: SetData = Gaia.getSetInfo(setID: self.data.setID)!
             var templateMetadata: {String: String} = Gaia.getTemplateMetaData(templateID: self.data.templateID)!
+            let url = "https://flowty.io/collection/".concat(Gaia.account.address.toString()).concat("/Gaia/").concat(self.id.toString())
 
             switch view {
                 case Type<MetadataViews.NFTView>():
@@ -490,7 +491,7 @@ access(all) contract Gaia {
                     var thumbnail: {MetadataViews.File}? = self.parseThumbnail(img: templateMetadata["img"]!)
                     return MetadataViews.Display(name: name, description: description, thumbnail: thumbnail!)
                 case Type<MetadataViews.ExternalURL>():
-                    return Gaia.parseExternalURL()
+                    return MetadataViews.ExternalURL(url)
                 case Type<MetadataViews.NFTCollectionData>():
                     return Gaia.resolveContractView(resourceType: Type<@Gaia.NFT>(), viewType: Type<MetadataViews.NFTCollectionData>())
                 case Type<MetadataViews.NFTCollectionDisplay>():
@@ -502,10 +503,10 @@ access(all) contract Gaia {
                     let royalties: [MetadataViews.Royalty] = []
                     let royaltyReceiverCap =
                         getAccount(Gaia.royaltyAddress()).capabilities.get<&{FungibleToken.Receiver}>(/public/dapperUtilityCoinReceiver)
-                    if royaltyReceiverCap!.check() == true {
+                    if royaltyReceiverCap.check() == true {
                         royalties.append(
                             MetadataViews.Royalty(
-                                receiver: royaltyReceiverCap!,
+                                receiver: royaltyReceiverCap,
                                 cut:  0.05,
                                 description: "Creator royalty fee."
                             )
@@ -524,7 +525,7 @@ access(all) contract Gaia {
         //
         init(mintNumber: UInt64, templateID: UInt64, setID: UInt64) {
             // Increment the global Moment IDs
-            Gaia.totalSupply = Gaia.totalSupply + 1 as UInt64
+            Gaia.totalSupply = Gaia.totalSupply + 1
 
             self.id = Gaia.totalSupply
 
@@ -612,11 +613,9 @@ access(all) contract Gaia {
     // This is the interface that users can cast their Gaia Collection as
     // to allow others to deposit Gaia into their Collection. It also allows for reading
     // the details of Gaia in the Collection.
-    access(all) resource interface CollectionPublic {
+    access(all) resource interface CollectionPublic: NonFungibleToken.Collection {
         access(all) fun deposit(token: @{NonFungibleToken.NFT})
         access(all) fun batchDeposit(tokens: @{NonFungibleToken.Collection})
-        access(all) view fun getIDs(): [UInt64]
-        access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT}
         access(all) view fun borrowGaiaNFT(id: UInt64): &Gaia.NFT? {
             // If the result isn't nil, the id of the returned reference
             // should be the same as the argument to the function
@@ -1017,12 +1016,12 @@ access(all) contract Gaia {
     //
 
     access(all) fun fetch(_ from: Address, itemID: UInt64): &Gaia.NFT? {
-        let cap = getAccount(from)
-            .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)
-        let collection =  cap!.borrow() ?? panic("Could not borrow the collection")
+        let collection = getAccount(from)
+            .capabilities.get<&{NonFungibleToken.Collection}>(Gaia.CollectionPublicPath).borrow() ?? panic("Could not borrow the collection")
+        let gaiaCollection = collection as! &{Gaia.CollectionPublic} 
         // We trust Gaia.Collection.borowGaiaAsset to get the correct itemID
         // (it checks it before returning it).
-        return collection.borrowGaiaNFT(id: itemID) ?? nil
+        return gaiaCollection.borrowGaiaNFT(id: itemID)
     }
 
     // checkSetup
@@ -1032,7 +1031,7 @@ access(all) contract Gaia {
     //
     access(all) fun checkSetup(_ address: Address): Bool {
         let cap = getAccount(address)
-        .capabilities.get<&{Gaia.CollectionPublic}>(Gaia.CollectionPublicPath)!
+        .capabilities.get<&{NonFungibleToken.Collection}>(Gaia.CollectionPublicPath)
         return cap.check()
     }
 
