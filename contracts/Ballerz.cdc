@@ -11,6 +11,8 @@ access(all) contract Gaia {
     // entitlement for all previous Admin resources/functions
     access(all) entitlement Owner
 
+    access(all) entitlement Mint
+
     // Events
     //
     access(all) event ContractInitialized()
@@ -334,7 +336,7 @@ access(all) contract Gaia {
         // Returns: The NFT that was minted
         //
 
-        access(all) fun mintNFT(templateID: UInt64): @NFT {
+        access(Mint) fun mintNFT(templateID: UInt64): @NFT {
             pre {
                 self.lockedTemplates[templateID] != nil: "Cannot mint the NFT: This template doesn't exist."
                 !self.lockedTemplates[templateID]!: "Cannot mint the NFT from this template: This template has been locked."
