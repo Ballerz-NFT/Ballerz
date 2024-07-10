@@ -55,10 +55,7 @@ access(all) contract Gaia {
     access(all)  var nextSetID: UInt64
 
     access(all) fun royaltyAddress(setName: String): Address {
-
-         var address: Address = setName == "Ballerz" || setName == "Sneakers" ? 0x01 : 0x9eef2e4511390ce4
-
-        return 0x9eef2e4511390ce4
+        return setName == "Ballerz" || setName == "Sneakerz" ? 0x01 : 0x9eef2e4511390ce4
     }
 
     // -----------------------------------------------------------------------
