@@ -781,15 +781,15 @@ access(all) contract Gaia {
 
     access(contract) fun getCollectionSquareImage(): MetadataViews.Media {
         return MetadataViews.Media(
-            file: MetadataViews.HTTPFile(url: "https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-square.png"),
-            mediaType: "image/png"
+            file: MetadataViews.HTTPFile(url: "https://ballerz.com/images/onchain/logo-pfp.jpg"),
+            mediaType: "image/jpeg"
         )
     }
 
     access(contract) fun getCollectionBannerImage(): MetadataViews.Media {
         return MetadataViews.Media(
-            file: MetadataViews.HTTPFile(url: "https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-banner.png"),
-            mediaType: "image/png"
+            file: MetadataViews.HTTPFile(url: "https://ballerz.com/images/onchain/logo.jpg"),
+            mediaType: "image/jpeg"
         )
     }
 
