@@ -54,7 +54,10 @@ access(all) contract Gaia {
     // setID is assigned to the new set's ID and then is incremented by 1.
     access(all)  var nextSetID: UInt64
 
-    access(all) fun royaltyAddress(): Address {
+    access(all) fun royaltyAddress(setName: String): Address {
+
+         var address: Address = setName == "Ballerz" || setName == "Sneakers" ? 0x01 : 0x9eef2e4511390ce4
+
         return 0x9eef2e4511390ce4
     }
 
@@ -504,7 +507,7 @@ access(all) contract Gaia {
                 case Type<MetadataViews.Royalties>():
                     let royalties: [MetadataViews.Royalty] = []
                     let royaltyReceiverCap =
-                        getAccount(Gaia.royaltyAddress()).capabilities.get<&{FungibleToken.Receiver}>(/public/dapperUtilityCoinReceiver)
+                        getAccount(Gaia.royaltyAddress(setName: setData.name)).capabilities.get<&{FungibleToken.Receiver}>(/public/dapperUtilityCoinReceiver)
                     if royaltyReceiverCap.check() == true {
                         royalties.append(
                             MetadataViews.Royalty(
