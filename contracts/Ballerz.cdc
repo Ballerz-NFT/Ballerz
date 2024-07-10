@@ -781,7 +781,7 @@ access(all) contract Gaia {
 
     access(contract) fun getCollectionSquareImage(): MetadataViews.Media {
         return MetadataViews.Media(
-            file: MetadataViews.HTTPFile(url: "https://ballerz.com/images/onchain/logo-pfp.jpg"),
+            file: MetadataViews.HTTPFile(url: "https://ballerz.com/images/onchain/logo-stack.png"),
             mediaType: "image/jpeg"
         )
     }
