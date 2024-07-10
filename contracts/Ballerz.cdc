@@ -398,7 +398,7 @@ access(all) contract Gaia {
         }
     }
 
-    access(contract) fun parseExternalURL(): MetadataViews.ExternalURL {
+    access(contract) fun buildExternalURL(): MetadataViews.ExternalURL {
         let baseURI = "https://flowty.io/collection/".concat(Gaia.account.address.toString())
         return MetadataViews.ExternalURL(baseURI)
     }
@@ -831,7 +831,7 @@ access(all) contract Gaia {
                 return MetadataViews.NFTCollectionDisplay(
                     name: "Ballerz",
                     description: "A basketball-inspired generative NFT living on the Flow blockchain",
-                    externalURL: self.parseExternalURL(),
+                    externalURL: self.buildExternalURL(),
                     squareImage: self.getCollectionSquareImage(),
                     bannerImage: self.getCollectionBannerImage(),
                     socials: {
