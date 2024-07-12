@@ -1,6 +1,6 @@
 {
   "name": "ballerz",
-  "version": ".42",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@flowtyio/flow-contracts": "github:flowtyio/flow-contracts"
+    "@flowtyio/flow-contracts": "github:flowtyio/flow-contracts#crescendo"
   }
 }

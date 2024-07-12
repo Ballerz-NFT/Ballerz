@@ -1,0 +1,80 @@
+{
+  "networks": {
+    "emulator": "127.0.0.1:3569",
+    "mainnet": "access.mainnet.nodes.onflow.org:9000",
+    "testing": "127.0.0.1:3569",
+    "testnet": "access.devnet.nodes.onflow.org:9000"
+  },
+  "accounts": {
+    "emulator-account": {
+      "address": "f8d6e0586b0a20c7",
+      "key": {
+        "type": "file",
+        "location": "emulator-account.pkey"
+      }
+    },
+    "emulator-ft": {
+      "address": "ee82856bf20e2aa6",
+      "key": {
+        "type": "file",
+        "location": "emulator-account.pkey"
+      }
+    }
+  },
+  "contracts": {
+    "Ballerz": {
+      "source": "./contracts/Ballerz.cdc",
+      "aliases": {
+        "testnet": "0x06f1e5cde6db0e70",
+        "testing": "0x0000000000000006"
+      }
+    },
+    "FungibleToken": {
+      "source": "./node_modules/@flowtyio/flow-contracts/contracts/FungibleToken.cdc",
+      "aliases": {
+        "emulator": "0xee82856bf20e2aa6",
+        "testnet": "0x9a0766d93b6608b7",
+        "mainnet": "0xf233dcee88fe0abe"
+      }
+    },
+    "NonFungibleToken": {
+      "source": "./node_modules/@flowtyio/flow-contracts/contracts/NonFungibleToken.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7",
+        "testnet": "0x631e88ae7f1d7c20",
+        "mainnet": "0x1d7e57aa55817448"
+      }
+    },
+    "ViewResolver": {
+      "source": "./node_modules/@flowtyio/flow-contracts/contracts/ViewResolver.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7",
+        "testnet": "0x631e88ae7f1d7c20",
+        "mainnet": "0x1d7e57aa55817448"
+      }
+    },
+    "Burner": {
+      "source": "./node_modules/@flowtyio/flow-contracts/contracts/Burner.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7",
+        "testnet": "0x9a0766d93b6608b7",
+        "mainnet": "0xf233dcee88fe0abe"
+      }
+    },
+    "MetadataViews": {
+      "source": "./node_modules/@flowtyio/flow-contracts/contracts/MetadataViews.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7",
+        "testnet": "0x631e88ae7f1d7c20",
+        "mainnet": "0x1d7e57aa55817448"
+      }
+    }
+  },
+  "deployments": {
+    "emulator": {
+      "emulator-account": [
+        "Ballerz"
+      ]
+    }
+  }
+}
