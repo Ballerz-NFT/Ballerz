@@ -19,6 +19,20 @@
         "type": "file",
         "location": "emulator-account.pkey"
       }
+    },
+    "testnet-account": {
+      "address": "0x1",
+      "key": {
+        "type": "file",
+        "location": "testnet-account.pkey"
+      }
+    },
+    "mainnet-account": {
+      "address": "0x8b148183c28ff88f",
+      "key": {
+        "type": "file",
+        "location": "mainnet-account.pkey"
+      }
     }
   },
   "contracts": {
@@ -73,6 +87,16 @@
   "deployments": {
     "emulator": {
       "emulator-account": [
+        "Ballerz"
+      ]
+    },
+    "testnet": {
+      "testnet-account": [
+        "Ballerz"
+      ]
+    },
+    "mainnet": {
+      "mainnet-account": [
         "Ballerz"
       ]
     }

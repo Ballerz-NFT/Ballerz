@@ -3,3 +3,5 @@ node_modules/
 
 # Ignore the emulator key
 emulator-account.pkey
+testnet-account.pkey
+mainnet-account.pkey

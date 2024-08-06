@@ -6,7 +6,7 @@ import "ViewResolver"
 // Gaia
 // NFT an open NFT standard!
 //
-access(all) contract Gaia {
+access(all) contract Gaia: ViewResolver, NonFungibleToken {
 
     // entitlement for all previous Admin resources/functions
     access(all) entitlement Owner
