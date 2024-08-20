@@ -30,6 +30,7 @@
     "mainnet-account": {
       "address": "0x8b148183c28ff88f",
       "key": {
+        "index": 2,
         "type": "file",
         "location": "mainnet-account.pkey"
       }
@@ -86,19 +87,13 @@
   },
   "deployments": {
     "emulator": {
-      "emulator-account": [
-        "Ballerz"
-      ]
+      "emulator-account": ["Ballerz"]
     },
     "testnet": {
-      "testnet-account": [
-        "Ballerz"
-      ]
+      "testnet-account": ["Ballerz"]
     },
     "mainnet": {
-      "mainnet-account": [
-        "Ballerz"
-      ]
+      "mainnet-account": ["Ballerz"]
     }
   }
 }
