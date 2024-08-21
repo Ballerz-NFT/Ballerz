@@ -434,20 +434,20 @@ pub contract Gaia: NonFungibleToken {
         }
 
         access(contract) fun parseExternalURL(setData: SetData): MetadataViews.ExternalURL {
-            let baseURI = "https://ongaia.com/"
+            let baseURI = "https://ballerz.com/"
             return MetadataViews.ExternalURL(baseURI)
         }
 
         access(contract) fun getCollectionSquareImage(setData: SetData): MetadataViews.Media {
             return MetadataViews.Media(
-                file: MetadataViews.HTTPFile("https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-square.png"),
+                file: MetadataViews.HTTPFile("https://ballerz.com/images/onchain/logo-stack.png"),
                 mediaType: "image/png"
             )
         }
 
         access(contract) fun getCollectionBannerImage(setData: SetData): MetadataViews.Media {
             return MetadataViews.Media(
-                file: MetadataViews.HTTPFile("https://d3ihoi13u6g9y2.cloudfront.net/metadata/ballerz-banner.png"),
+                file: MetadataViews.HTTPFile("https://ballerz.com/images/onchain/logo.jpg"),
                 mediaType: "image/png"
             )
         }
@@ -515,7 +515,7 @@ pub contract Gaia: NonFungibleToken {
                         squareImage: self.getCollectionSquareImage(setData: setData),
                         bannerImage: self.getCollectionBannerImage(setData: setData),
                         socials: {
-                            "twitter": MetadataViews.ExternalURL("https://twitter.com/ongaia")
+                            "twitter": MetadataViews.ExternalURL("https://twitter.com/ballerz_nft")
                         }
                     )
                 case Type<MetadataViews.Traits>():
