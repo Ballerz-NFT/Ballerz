@@ -730,8 +730,8 @@ access(all) contract Gaia: ViewResolver, NonFungibleToken {
         // Gets a reference to an NFT in the collection
         // so that the caller can read its metadata and call its methods
         //
-        access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT} {
-            return (&self.ownedNFTs[id])!
+        access(all) view fun borrowNFT(_ id: UInt64): &{NonFungibleToken.NFT}? {
+            return &self.ownedNFTs[id]
         }
 
         // borrowGaiaNFT
