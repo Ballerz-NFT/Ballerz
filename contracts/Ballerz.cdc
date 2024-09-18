@@ -55,7 +55,7 @@ access(all) contract Gaia: ViewResolver, NonFungibleToken {
     access(all)  var nextSetID: UInt64
 
     access(all) fun royaltyAddress(setName: String): Address {
-        return setName == "Ballerz" || setName == "Sneakerz" ? 0x01 : 0x9eef2e4511390ce4
+        return setName == "Ballerz" || setName == "Sneakerz" ? 0xdb47c62636c8cba4 : 0x9eef2e4511390ce4
     }
 
     // -----------------------------------------------------------------------
