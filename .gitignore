@@ -3,3 +3,6 @@ node_modules/
 
 # Ignore all account private keys
 *.pkey
+
+# Claude Code local settings
+.claude/settings.local.json
