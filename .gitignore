@@ -1,7 +1,5 @@
 # Ignore the node_modules directory
 node_modules/
 
-# Ignore the emulator key
-emulator-account.pkey
-testnet-account.pkey
-mainnet-account.pkey
+# Ignore all account private keys
+*.pkey
