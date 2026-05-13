@@ -17,6 +17,11 @@
 				"mainnet": "ead892083b3e2c6c"
 			}
 		},
+		"TokenForwarding": {
+			"aliases": {
+				"mainnet": "e544175ee0461c4b"
+			}
+		},
 		"FungibleToken": {
 			"source": "./node_modules/@flowtyio/flow-contracts/contracts/FungibleToken.cdc",
 			"aliases": {
