@@ -10,9 +10,9 @@
 // were Dapper accounts holding 9,367 of 9,759 Ballerz, and 284 were linked to
 // a parent wallet
 
-import "HybridCustody"
-import "NonFungibleToken"
-import "Gaia"
+import HybridCustody from 0xd8a7e05a7ac670c0
+import NonFungibleToken from 0x1d7e57aa55817448
+import Gaia from 0x8b148183c28ff88f
 
 access(all) fun main(addrs: [Address]): [[AnyStruct]] {
   let out: [[AnyStruct]] = []
