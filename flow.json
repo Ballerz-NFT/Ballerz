@@ -13,6 +13,7 @@
 			}
 		},
 		"DapperUtilityCoin": {
+			"source": "",
 			"aliases": {
 				"mainnet": "ead892083b3e2c6c"
 			}
@@ -40,7 +41,8 @@
 			"aliases": {
 				"mainnet": "1d7e57aa55817448"
 			}
-		}
+		},
+		"Gaia": "./contracts/Ballerz.cdc"
 	},
 	"networks": {
 		"mainnet": "access.mainnet.nodes.onflow.org:9000"
@@ -49,16 +51,16 @@
 		"mainnet-account": {
 			"address": "8b148183c28ff88f",
 			"key": {
-				"index": 2,
 				"type": "file",
+				"index": 2,
 				"location": "mainnet-account.pkey"
 			}
 		},
 		"royalty-wallet": {
 			"address": "d00d9c578906a9ba",
 			"key": {
-				"index": 4,
 				"type": "file",
+				"index": 4,
 				"signatureAlgorithm": "ECDSA_secp256k1",
 				"hashAlgorithm": "SHA2_256",
 				"location": "royalty-wallet.pkey"
@@ -68,7 +70,8 @@
 	"deployments": {
 		"mainnet": {
 			"mainnet-account": [
-				"Ballerz"
+				"Ballerz",
+				"Gaia"
 			]
 		}
 	}
