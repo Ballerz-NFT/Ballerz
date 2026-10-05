@@ -1,5 +1,5 @@
-import "MetadataViews"
-import "Gaia"
+import MetadataViews from 0x1d7e57aa55817448
+import Gaia from 0x8b148183c28ff88f
 
 access(all) fun main(owner: Address, nftID: UInt64): {String: String} {
     let collection = getAccount(owner).capabilities
